@@ -1,0 +1,204 @@
+/* app.css */
+
+/* Reseteo básico */
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: Arial, sans-serif;
+  background-color: transparent; /* Importante para ver las partículas */
+}
+
+/* Contenedor general de la app */
+.App {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: transparent; 
+  
+  /* Centra el contenedor principal horizontal y verticalmente */
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+}
+
+/* Fondo de partículas */
+#custom-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Envía al fondo */
+}
+
+/* Contenedor principal: ALINEA LOS 3 ELEMENTOS (Jaguar, Contenido Central, Jaguar) */
+.principal-container {
+  position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 600px;
+    width: 95%;
+    height: 100vh;
+    padding: 0 20px;
+    margin: 0 auto;;
+}
+
+/* Contenido Central: El cuadro negro con el formulario */
+.content {
+  background: rgba(0, 0, 0, 0.85); /* Fondo negro semitransparente */
+  padding: 30px 10px;
+  border-radius: 20px;
+  text-align: center;
+  color: white;
+  flex-shrink: 0; /* Evita que se encoja cuando no hay espacio */
+  width: 340px; /* Ancho fijo para el panel central */
+}
+
+/* Estilos para las imágenes de los jaguares */
+.jaggy {
+  width: 120px; /* Ajusta el tamaño del muñeco */
+  height: auto;
+  flex-shrink: 0; 
+  /* Desplazamiento para que el jaguar quede más abajo, alineado con el centro del cuadro */
+  margin-top: 100px; 
+}
+
+/* Input y Contenedores */
+.input-container {
+    margin: 20px 0;
+}
+
+#numeroInput {
+    width: 90%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-align: center;
+}
+
+/* Imagen del Perfil de Usuario */
+.default-image-container {
+    margin: 30px 0;
+}
+
+#defaultImage {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 5px solid white;
+    object-fit: cover;
+}
+
+/* Estilos para el campo de información adicional */
+.student-info {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: none;
+}
+
+.student-info h2 {
+    margin: 8px 0;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   🎨 ESTILOS PERSONALIZADOS PARA LOS AVISOS (SweetAlert2)
+   ========================================================= */
+
+/* 🔧 Ajustes globales de tamaño */
+.swal2-popup {
+  max-width: 240px !important;  /* más pequeño */
+  padding: 8px 12px !important;
+  font-size: 0.9rem !important;
+  margin-top: 30px !important; /* se ve el SCAN YOUR CARD */
+  transform: translateY(-10px);
+  border-radius: 12px;
+}
+
+
+/* 📝 Texto del contenido (después del título) */
+.swal2-html-container {
+  font-size: 1.2rem !important; /* aumenta este valor si quieres más grande */
+  font-weight: 500;
+}
+
+
+/* ✅ Aviso verde: código válido */
+.swal2-popup.success-alert {
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  color: #000000;
+  border: 2px solid #66bb6a;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+  font-family: "Poppins", sans-serif;
+}
+
+/* ⚠️ Aviso amarillo: solo plan de refrigerio */
+.swal2-popup.warning-alert {
+  background: linear-gradient(135deg, #fff8e1, #ffecb3);
+  color: #000000;
+  border: 2px solid #fbc02d;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+  font-family: "Poppins", sans-serif;
+}
+
+/* ❌ Aviso rojo: código no válido o sin plan */
+.swal2-popup.error-alert {
+  background: linear-gradient(135deg, #ffebee, #ffcdd2);
+  color: #000000;
+  border: 2px solid #e57373;
+  box-shadow: 0 0 10px rgba(244, 67, 54, 0.4);
+  font-family: "Poppins", sans-serif;
+}
+
+/* ⚪ Aviso gris Solo plan de almuerzo */
+.swal2-popup.purple-alert {
+  background: linear-gradient(135deg, #9c9c9c, #696969);
+  color: #000000;
+  border: 2px solid #363535;
+  box-shadow: 0 0 10px rgba(49, 49, 49, 0.4);
+  font-family: "Poppins", sans-serif;
+}
+
+/* 🟢 Aviso verde brillante: Doble plan (almuerzo + refrigerio) */
+.swal2-popup.doubleplan-alert {
+  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+  color: #000000;
+  border: 2px solid #43a047;
+  box-shadow: 0 0 10px rgba(67, 160, 71, 0.4);
+  font-family: "Poppins", sans-serif;
+}
+
+/* 🕒 Animación suave al mostrar los avisos */
+.swal2-show {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 🔤 Ajustes de texto */
+.swal2-title {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 5px !important;
+}
+
+

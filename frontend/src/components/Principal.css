@@ -1,0 +1,112 @@
+.principal-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  background: #1e1e1e;
+  color: white;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
+
+.mascota {
+  width: 150px;
+  height: auto;
+}
+
+.mascota.left {
+  margin-left: 40px;
+}
+
+.mascota.right {
+  margin-right: 40px;
+}
+
+.card {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  width: 350px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.card h2 {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.card input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.circle {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.circle img {
+  width: 80px;
+  height: 80px;
+}
+
+
+
+
+
+/* Estilos adicionales para mensajes y validación */
+.loading {
+  color: #ffa500;
+  font-weight: bold;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.mensaje {
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.mensaje.exito {
+  background-color: #28a745;
+  color: white;
+}
+
+.mensaje.error {
+  background-color: #dc3545;
+  color: white;
+}
+
+.info-estudiante {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.info-estudiante p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.info-estudiante strong {
+  color: #4CAF50;
+}
