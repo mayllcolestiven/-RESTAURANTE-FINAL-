@@ -151,7 +151,7 @@ body, html, #root {
   font-family: "Poppins", sans-serif;
 }
 
-/* ❌ Aviso rojo: código no válido o sin plan */
+/* ❌ Aviso rojo: código no válido */
 .swal2-popup.error-alert {
   background: linear-gradient(135deg, #ffebee, #ffcdd2);
   color: #000000;
@@ -160,10 +160,19 @@ body, html, #root {
   font-family: "Poppins", sans-serif;
 }
 
+/* 🔴 Aviso rojo claro: Fuera de horario para reclamar */
+.swal2-popup.light-error-alert {
+  background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+  color: #000000;
+  border: 2px solid #ff9999;
+  box-shadow: 0 0 10px rgba(255, 100, 100, 0.3);
+  font-family: "Poppins", sans-serif;
+}
+
 /* ⚪ Aviso gris Solo plan de almuerzo */
 .swal2-popup.purple-alert {
-  background: linear-gradient(135deg, #9c9c9c, #696969);
-  color: #000000;
+  background: linear-gradient(135deg, #a7a6a6, #696969);
+  color: #ffffff;
   border: 2px solid #363535;
   box-shadow: 0 0 10px rgba(49, 49, 49, 0.4);
   font-family: "Poppins", sans-serif;
@@ -200,5 +209,3 @@ body, html, #root {
   font-weight: 700 !important;
   margin-bottom: 5px !important;
 }
-
-

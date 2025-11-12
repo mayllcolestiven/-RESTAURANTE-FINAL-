@@ -110,3 +110,99 @@
 .info-estudiante strong {
   color: #4CAF50;
 }
+
+
+
+
+
+
+
+/* Estado de impresión */
+.impresion-status {
+  margin: 15px 0;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.exito-impresion {
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #c3e6cb;
+}
+
+.error-impresion {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffeaa7;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mejorar el mensaje de éxito */
+.mensaje.exito {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 2px solid #c3e6cb;
+  margin: 10px 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.mensaje.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 2px solid #f5c6cb;
+  margin: 10px 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Mejorar info estudiante */
+.info-estudiante {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+  border-left: 4px solid #667eea;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.info-estudiante p {
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.info-estudiante strong {
+  color: #667eea;
+}
+
+/* Loading mejorado */
+.loading {
+  color: #667eea;
+  font-weight: bold;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
