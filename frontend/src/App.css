@@ -209,3 +209,17 @@ body, html, #root {
   font-weight: 700 !important;
   margin-bottom: 5px !important;
 }
+
+/* Custom SweetAlert Style - Clean and Minimal */
+.custom-swal-popup {
+  background: white !important;
+  border-radius: 20px !important;
+  padding: 0 !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2) !important;
+  max-width: 400px !important;
+}
+
+.custom-swal-popup .swal2-html-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}

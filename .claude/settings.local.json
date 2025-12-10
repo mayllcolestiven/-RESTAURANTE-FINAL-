@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(python3 -m pip:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

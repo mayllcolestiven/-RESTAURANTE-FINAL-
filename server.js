@@ -6,36 +6,22 @@ const { exec } = require('child_process');
 
 const app = express();
 const port = 3000;
-const testMode = false;
+
+// Test mode - when true, tickets won't actually print
+const testMode = true;
 
 app.use(cors());
 app.use(express.json());
 
-// --- CONFIGURACIÓN ---
-const PRINTER_SHARE_NAME = 'TICKET'; 
-const COMPUTER_NAME = 'localhost'; 
-// 0 = Velocidad Máxima (Inmediato)
-const TIEMPO_DE_ESPERA = 0; 
+// =============================================================================
+// PRINTER CONFIGURATION
+// =============================================================================
+const PRINTER_SHARE_NAME = 'TICKET';
+const COMPUTER_NAME = 'localhost';
 
-const horarios = {
-    refrigerio: { start: '06:00', end: '11:30', alias: 'Refrigerio/Snack' }, 
-    almuerzo:   { start: '11:40', end: '18:00', alias: 'Almuerzo/Lunch' }
-};
-
-function checkPlan(tipo) {
-    const now = new Date();
-    const t = tipo.toUpperCase();
-    const inRange = (s, e) => {
-        const [sh, sm] = s.split(':'); const [eh, em] = e.split(':');
-        const d = new Date(now); 
-        const start = new Date(d.setHours(sh, sm, 0));
-        const end = new Date(d.setHours(eh, em, 59));
-        return now >= start && now <= end;
-    };
-    if ((t.includes('REFRIGERIO') || t.includes('SNACK')) && inRange(horarios.refrigerio.start, horarios.refrigerio.end)) return horarios.refrigerio.alias;
-    if ((t.includes('ALMUERZO') || t.includes('LUNCH')) && inRange(horarios.almuerzo.start, horarios.almuerzo.end)) return horarios.almuerzo.alias;
-    return null;
-}
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
 
 function getDayOfYear(date) {
     const start = new Date(date.getFullYear(), 0, 0);
@@ -44,94 +30,139 @@ function getDayOfYear(date) {
 }
 
 function cleanText(str) {
+    // Remove accents and special characters for better printer compatibility
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-app.get('/', (req, res) => res.json({ status: 'Online', mode: 'Nativo ESC/POS (Diseño Excel)' }));
+// =============================================================================
+// ROUTES
+// =============================================================================
+
+app.get('/', (req, res) => {
+    res.json({
+        status: 'Online',
+        mode: testMode ? 'TEST MODE (Not printing)' : 'PRODUCTION (Printing enabled)',
+        printer: PRINTER_SHARE_NAME
+    });
+});
 
 app.post('/imprimir', (req, res) => {
-    // 1. RESPUESTA RAPIDA
+    // Validate request
     if (!req.body.contenido || !req.body.contenido.nombre) {
-        return res.status(400).json({ success: false, message: 'Datos incompletos' });
+        return res.status(400).json({
+            success: false,
+            message: 'Incomplete data'
+        });
     }
-    res.json({ success: true, message: "Imprimiendo..." });
 
-    // 2. IMPRESIÓN DE FONDO
+    // Send immediate response
+    res.json({ success: true, message: "Printing..." });
+
+    // Process printing in background
     setTimeout(() => {
         try {
             const { contenido } = req.body;
-            const plan = checkPlan(contenido.tipo_alimentacion);
-            if (!plan) return;
-
             const now = new Date();
-            // Formato de fecha limpio
-            const fechaStr = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()} ${now.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit', hour12:true})}`;
-            
-            const palabras = ["APPLE","BANANA","BREAD","BUTTER","CARROT","CHEESE","CHICKEN","CHOCOLATE","COFFEE","COOKIE","CORN","CREAM","CUCUMBER","EGG","FISH","FLOUR","GARLIC","GRAPE","HONEY","ICE CREAM","JUICE","LEMON","LETTUCE","MEAT","MILK","MUSHROOM","NOODLES","ONION","ORANGE","PASTA","PEACH","PEAR","PEPPER","PIZZA","POTATO","RICE","SALAD","SALT","SANDWICH","SOUP","SPINACH","STEAK","STRAWBERRY","SUGAR","TEA","TOMATO","WATER","WATERMELON","YOGURT","ZUCCHINI"];
+
+            // Format date and time
+            const fechaStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+
+            // Daily keyword for validation
+            const palabras = [
+            "FLI", "LEARN TO LEARN", "INDEPENDENT", "SOCIAL LEADER", "CITIZENSHIP",
+            "CARING", "KIND", "TEAM PLAYER", "COOKING", "FAIR",
+            "PERSONAL BEST", "LEARN TO BE", "INNOVATIVE", "ARTSSO", "SENIORS",
+            "CERRITOS", "RESPECTFUL", "FREEDOM", "COURAGEOUS", "FUNDACIÓN",
+            "WEECARE", "COLOMBIA", "THINK", "HUMBLE", "CHONTADURO",
+            "SPORTS", "VIADUCTO", "MOTIVATED", "LOYAL", "MULTICULTURAL",
+            "LICEO INGLÉS", "UNITED STATES", "LEADERSHIP", "SUCCESS", "EMPATHETIC",
+            "HONESTY", "PASSIONATE", "VOLLEYBALL", "SCIENCE", "LEADER",
+            "RELIABLE", "HONEST", "INTEGRITY", "LEARN TO THINK", "THOUGHTFUL",
+            "JAGGY", "RISARALDA", "GLOBAL CITIZEN", "LOVE IT!", "COFFEE",
+            "OPEN MINDED", "RISK TAKER", "CONSOTA", "HAPPY", "SOCCER",
+            "DIGNITY", "RESPONSIBLE", "TRUSTWORTHY", "OTÚN", "SIX-SEVEN",
+            "ACHIEVEMENT", "GLOBAL", "ROBOTICS", "DIGITAL", "PROACTIVE",
+            "PEREIRA", "NHS", "FLIMUN", "30 DE AGOSTO", "CREATIVE",
+            "AWARENESS", "NJHS", "COGNIA", "BILINGUAL", "UNDERSTANDING",
+            "AUTONOMOUS", "CIVIC", "GO JAGUARS"
+        ];
             const palabra = palabras[getDayOfYear(now) % palabras.length].toUpperCase();
 
-            // --- DISEÑO TIPO EXCEL ---
+            // ESC/POS commands
             const ESC = '\x1B';
             const GS = '\x1D';
             const LF = '\n';
 
             let commands = '';
-            commands += ESC + '@'; // Inicializar
-            commands += ESC + 'a' + '\x01'; // Centrar
-            
-            commands += LF; // Margen superior
+            commands += ESC + '@'; // Initialize printer
+            commands += ESC + 'a' + '\x01'; // Center align
 
-            // 1. NOMBRE (DOBLE ALTO - ESTILO TÍTULO)
-            // \x10 = Doble Alto pero Ancho Normal (Para que quepa en una línea)
-            commands += GS + '!' + '\x10'; 
-            commands += ESC + 'E' + '\x01'; // Negrita ON
+            commands += LF; // Top margin
+
+            // 1. Student name (double height)
+            commands += GS + '!' + '\x10';
+            commands += ESC + 'E' + '\x01'; // Bold ON
             commands += cleanText(contenido.nombre) + LF;
-            commands += ESC + 'E' + '\x00'; // Negrita OFF
-            commands += GS + '!' + '\x00'; // Resetear tamaño
-            
-            commands += LF; // Espacio
+            commands += ESC + 'E' + '\x00'; // Bold OFF
+            commands += GS + '!' + '\x00'; // Reset size
 
-            // 2. FECHA (Normal)
+            commands += LF;
+
+            // 2. Date and time
             commands += fechaStr + LF;
-            
-            // 3. PLAN (Normal)
-            commands += '(' + plan + ')' + LF;
-            
-            commands += LF; // Espacio antes de la palabra grande
 
-            // 4. PALABRA CLAVE (GIGANTE - ESTILO EXCEL)
-            // \x11 = Doble Ancho y Doble Alto (Letra gorda y grande)
-            commands += GS + '!' + '\x11'; 
-            commands += ESC + 'E' + '\x01'; // Negrita ON
+            // 3. Service type
+            commands += '(' + contenido.tipo_alimentacion + ')' + LF;
+
+            commands += LF;
+
+            // 4. Daily keyword (large)
+            commands += GS + '!' + '\x11'; // Double width and height
+            commands += ESC + 'E' + '\x01'; // Bold ON
             commands += palabra + LF;
-            commands += ESC + 'E' + '\x00'; // Negrita OFF
-            commands += GS + '!' + '\x00'; // Resetear tamaño
+            commands += ESC + 'E' + '\x00'; // Bold OFF
+            commands += GS + '!' + '\x00'; // Reset size
 
-            // 5. CORTE
-            commands += LF + LF + LF + LF; 
-            commands += GS + 'V' + '\x41' + '\x00'; 
+            // 5. Cut paper
+            commands += LF + LF + LF + LF;
+            commands += GS + 'V' + '\x41' + '\x00';
 
-            // Guardar y enviar
+            // Save to temporary file
             const tempFile = path.join(__dirname, 'raw_ticket.bin');
             fs.writeFileSync(tempFile, commands, { encoding: 'binary' });
 
-            const printerPath = `\\\\${COMPUTER_NAME}\\${PRINTER_SHARE_NAME}`;
-            const cmd = `copy /b "${tempFile}" "${printerPath}"`;
-
+            // Send to printer
             if (!testMode) {
+                const printerPath = `\\\\${COMPUTER_NAME}\\${PRINTER_SHARE_NAME}`;
+                const cmd = `copy /b "${tempFile}" "${printerPath}"`;
+
                 exec(cmd, (error) => {
-                    if (error) console.error("❌ Error imprimiendo:", error.message);
-                    else console.log(`✅ Ticket enviado: ${contenido.nombre}`);
+                    if (error) {
+                        console.error("❌ Printer error:", error.message);
+                    } else {
+                        console.log(`✅ Ticket printed: ${contenido.nombre} - ${contenido.tipo_alimentacion}`);
+                    }
                 });
+            } else {
+                console.log(`🧪 TEST MODE - Ticket would print: ${contenido.nombre} - ${contenido.tipo_alimentacion}`);
+                console.log(`   Keyword: ${palabra}`);
             }
 
         } catch (e) {
-            console.error("Error de fondo:", e);
+            console.error("❌ Background error:", e);
         }
-    }, TIEMPO_DE_ESPERA);
+    }, 0);
 });
 
+// =============================================================================
+// START SERVER
+// =============================================================================
 app.listen(port, () => {
-    console.log(`🚀 Servidor LISTO en http://localhost:${port}`);
-    console.log(`🎨 Estilo: Copia de Excel (Rápido)`);
+    console.log("\n" + "=".repeat(60));
+    console.log("🖨️  PRINTER SERVER");
+    console.log("=".repeat(60));
+    console.log(`📍 Server: http://localhost:${port}`);
+    console.log(`🖨️  Printer: ${PRINTER_SHARE_NAME}`);
+    console.log(`🧪 Test Mode: ${testMode ? 'ENABLED (Not printing)' : 'DISABLED (Printing enabled)'}`);
+    console.log("=".repeat(60) + "\n");
 });

@@ -3,7 +3,6 @@ import Swal from "sweetalert2";
 import ParticleBackground from "./CustomParticleBackground.jsx";
 import "./app.css";
 
-// Importa las imágenes
 import JaggyImage from "./assets/sin fondo 1.png";
 import DefaultUserImage from "./assets/person_13924070.png";
 
@@ -12,24 +11,31 @@ function App() {
   const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
 
-  // Mantener el foco en el input siempre
+  // Keep focus on input always
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [loading, codigo]);
 
-  // Función para verificar el código
+  // Verify student code
   const verificarCodigo = async (value) => {
+    // Validate code length
     if (value.length < 3 || value.length > 6) {
       Swal.fire({
-        icon: "error",
-        title: "❌ Código inválido",
-        text: "El código debe tener entre 3 y 6 dígitos",
-        timer: 2000,
+        html: `
+          <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">Invalid Code</div>
+            <div style="font-size: 16px; margin-bottom: 30px;">Code must be between 3 and 6 digits</div>
+            <div style="font-size: 48px; color: #dc3545;">✖</div>
+          </div>
+        `,
+        timer: 2500,
         showConfirmButton: false,
-        toast: true,
         position: "top",
+        customClass: {
+          popup: 'custom-swal-popup'
+        }
       });
       setCodigo("");
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -46,237 +52,79 @@ function App() {
       });
 
       const data = await response.json();
-      console.log("✅ Datos recibidos:", data);
+      console.log("Response from backend:", data);
 
-      // ❌ CASO 1: Backend responde con error (código no válido)
-      if (!response.ok || data.error) {
+      // SUCCESS CASE
+      if (response.ok && data.success) {
+        // Extract service type from message or use tipo_alimentacion
+        const serviceName = data.service_claimed || data.tipo_alimentacion;
+
         Swal.fire({
-          title: "❌ Código no válido",
-          text: data.mensaje || "Por favor acércate a Tesorería",
-          timer: 3000,
-          showConfirmButton: false,
-          toast: true,
-          position: "top",
-          customClass: { popup: "error-alert" },
-        });
-        setCodigo("");
-        setTimeout(() => inputRef.current?.focus(), 100);
-        return;
-      }
-
-      // 🚫 CASO 2: Bloquear grados no permitidos
-      const gradosNoPermitidos = ["K2", "K3", "K4", "K5", "1", "2"];
-
-      if (gradosNoPermitidos.includes(data.grado)) {
-        Swal.fire({
-          title: "🚫 ACCESO DENEGADO",
           html: `
-            <strong>${data.nombre}</strong><br>
-            Grado: ${data.grado}<br>
-            Este grado NO puede usar este sistema
+            <div style="text-align: center; padding: 20px;">
+              <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">${data.nombre}</div>
+              <div style="font-size: 16px; margin-bottom: 30px;">You can claim your ${serviceName}</div>
+              <div style="font-size: 48px; color: #28a745;">✓</div>
+            </div>
           `,
-          timer: 3000,
+          timer: 2500,
           showConfirmButton: false,
-          toast: true,
           position: "top",
-          customClass: { popup: "error-alert" },
+          customClass: {
+            popup: 'custom-swal-popup'
+          }
         });
-        setCodigo("");
-        setTimeout(() => inputRef.current?.focus(), 100);
-        return;
       }
+      // ERROR CASES
+      else {
+        // Determine icon and color based on error type
+        let icon = "✖";
+        let color = "#dc3545";
 
-      // ✅ CASO 3: Validar horarios y mostrar alertas
-      const hour = new Date().getHours();
-      const minutes = new Date().getMinutes();
-
-      // 🔹 SOLO REFRIGERIO
-      if (data.tipo_alimentacion === "SOLO REFRIGERIO") {
-        const esHoraRefrigerio = (hour >= 6 && hour < 11) || (hour === 11 && minutes < 30);
-
-        if (esHoraRefrigerio) {
-          // ✅ SÍ puede reclamar refrigerio
-          Swal.fire({
-            title: "",
-            html: `
-              <div style="text-align:center; line-height:1.4; font-size:18px;">
-                <strong>Solo plan de<br>refrigerio</strong><br><br>
-                ${data.nombre}<br>
-                Grado: ${data.grado}<br><br>
-                Puedes<br>reclamar tu<br>refrigerio
-              </div>
-            `,
-            timer: 3500,
-            showConfirmButton: false,
-            toast: true,
-            position: "top",
-            customClass: { popup: "warning-alert" },
-          });
-        } else {
-          // ❌ NO puede reclamar refrigerio
-          Swal.fire({
-            title: "",
-            html: `
-              <div style="text-align:center; line-height:1.4; font-size:18px;">
-                <strong>Solo plan de<br>refrigerio</strong><br><br>
-                ${data.nombre}<br>
-                Grado: ${data.grado}<br><br>
-                No puedes<br>reclamar tu<br>refrigerio
-              </div>
-            `,
-            timer: 3500,
-            showConfirmButton: false,
-            toast: true,
-            position: "top",
-            customClass: { popup: "light-error-alert" },
-          });
+        if (data.message && data.message.includes("homeroom")) {
+          icon = "⚠";
+          color = "#ffc107";
+        } else if (data.message && data.message.includes("already claimed")) {
+          icon = "ℹ";
+          color = "#17a2b8";
         }
 
-        setCodigo("");
-        setTimeout(() => inputRef.current?.focus(), 100);
-        return;
+        Swal.fire({
+          html: `
+            <div style="text-align: center; padding: 20px;">
+              <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">${data.nombre || "Error"}</div>
+              <div style="font-size: 16px; margin-bottom: 30px;">${data.message || data.error || "Please try again"}</div>
+              <div style="font-size: 48px; color: ${color};">${icon}</div>
+            </div>
+          `,
+          timer: 2800,
+          showConfirmButton: false,
+          position: "top",
+          customClass: {
+            popup: 'custom-swal-popup'
+          }
+        });
       }
-
-      // 🔹 SOLO ALMUERZO
-      if (data.tipo_alimentacion === "SOLO ALMUERZO") {
-        const esHoraAlmuerzo = (hour === 11 && minutes >= 40) || (hour >= 12 && hour < 18);
-
-        if (esHoraAlmuerzo) {
-          // ✅ SÍ puede reclamar almuerzo
-          Swal.fire({
-            title: "",
-            html: `
-              <div style="text-align:center; line-height:1.4; font-size:18px;">
-                <strong>Solo plan de<br>almuerzo</strong><br><br>
-                ${data.nombre}<br>
-                Grado: ${data.grado}<br><br>
-                Puedes<br>reclamar tu<br>almuerzo
-              </div>
-            `,
-            timer: 3500,
-            showConfirmButton: false,
-            toast: true,
-            position: "top",
-            customClass: { popup: "purple-alert" },
-          });
-        } else {
-          // ❌ NO puede reclamar almuerzo
-          Swal.fire({
-            title: "",
-            html: `
-              <div style="text-align:center; line-height:1.4; font-size:18px;">
-                <strong>Solo plan de<br>almuerzo</strong><br><br>
-                ${data.nombre}<br>
-                Grado: ${data.grado}<br><br>
-                No puedes<br>reclamar tu<br>almuerzo
-              </div>
-            `,
-            timer: 3500,
-            showConfirmButton: false,
-            toast: true,
-            position: "top",
-            customClass: { popup: "light-error-alert" },
-          });
-        }
-
-        setCodigo("");
-        setTimeout(() => inputRef.current?.focus(), 100);
-        return;
-      }
-
-      // 🔹 REFRIGERIO Y ALMUERZO (Doble plan)
-      if (data.tipo_alimentacion === "REFRIGERIO Y ALMUERZO") {
-        const esHoraRefrigerio = (hour >= 6 && hour < 11) || (hour === 11 && minutes < 40);
-        const esHoraAlmuerzo = (hour === 11 && minutes >= 40) || (hour >= 12 && hour < 18);
-
-        if (esHoraRefrigerio) {
-          // ✅ Puede reclamar REFRIGERIO
-          Swal.fire({
-            title: "",
-            html: `
-              <div style="text-align:center; line-height:1.4; font-size:18px;">
-                <strong>Doble plan</strong><br><br>
-                ${data.nombre}<br>
-                Grado: ${data.grado}<br><br>
-                Puedes<br>reclamar tu<br>refrigerio
-              </div>
-            `,
-            timer: 3500,
-            showConfirmButton: false,
-            toast: true,
-            position: "top",
-            customClass: { popup: "doubleplan-alert" },
-          });
-        } else if (esHoraAlmuerzo) {
-          // ✅ Puede reclamar ALMUERZO
-          Swal.fire({
-            title: "",
-            html: `
-              <div style="text-align:center; line-height:1.4; font-size:18px;">
-                <strong>Doble plan</strong><br><br>
-                ${data.nombre}<br>
-                Grado: ${data.grado}<br><br>
-                Puedes<br>reclamar tu<br>almuerzo
-              </div>
-            `,
-            timer: 3500,
-            showConfirmButton: false,
-            toast: true,
-            position: "top",
-            customClass: { popup: "doubleplan-alert" },
-          });
-        } else {
-          // ❌ Fuera de horario (ni refrigerio ni almuerzo)
-          Swal.fire({
-            title: "",
-            html: `
-              <div style="text-align:center; line-height:1.4; font-size:18px;">
-                <strong>Doble plan</strong><br><br>
-                ${data.nombre}<br>
-                Grado: ${data.grado}<br><br>
-                Fuera de<br>horario
-              </div>
-            `,
-            timer: 3500,
-            showConfirmButton: false,
-            toast: true,
-            position: "top",
-            customClass: { popup: "light-error-alert" },
-          });
-        }
-
-        setCodigo("");
-        setTimeout(() => inputRef.current?.focus(), 100);
-        return;
-      }
-
-      // 🔹 Sin plan definido
-      Swal.fire({
-        title: "⚠️ Sin plan definido",
-        html: `
-          <strong>${data.nombre}</strong><br>
-          Grado: ${data.grado}<br>
-          Por favor acércate a Tesorería
-        `,
-        timer: 3000,
-        showConfirmButton: false,
-        toast: true,
-        position: "top",
-        customClass: { popup: "warning-alert" },
-      });
 
       setCodigo("");
       setTimeout(() => inputRef.current?.focus(), 100);
+
     } catch (error) {
-      console.error("Error al conectar con el servidor:", error);
+      console.error("Connection error:", error);
       Swal.fire({
-        title: "⚠️ Error de conexión",
-        text: "No se pudo conectar con el servidor",
-        timer: 2000,
+        html: `
+          <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">Connection Error</div>
+            <div style="font-size: 16px; margin-bottom: 30px;">Could not connect to server</div>
+            <div style="font-size: 48px; color: #dc3545;">✖</div>
+          </div>
+        `,
+        timer: 2800,
         showConfirmButton: false,
-        toast: true,
         position: "top",
-        customClass: { popup: "error-alert" },
+        customClass: {
+          popup: 'custom-swal-popup'
+        }
       });
       setCodigo("");
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -300,7 +148,7 @@ function App() {
               ref={inputRef}
               type="text"
               id="numeroInput"
-              placeholder="Put your code here"
+              placeholder="Enter your code here"
               maxLength="6"
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
@@ -316,17 +164,10 @@ function App() {
             />
           </div>
 
-          {loading && <p style={{ color: "white" }}>⏳ Validando...</p>}
+          {loading && <p style={{ color: "white" }}>⏳ Validating...</p>}
 
           <div className="default-image-container">
             <img id="defaultImage" src={DefaultUserImage} alt="Default User" />
-          </div>
-
-          <div className="student-info">
-            <div className="student-name">
-              <h2 id="studentName"></h2>
-              <h2 id="tipoAlimentacion"></h2>
-            </div>
           </div>
         </div>
 
