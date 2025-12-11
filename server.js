@@ -34,6 +34,32 @@ function cleanText(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+function wrapText(text, maxCharsPerLine) {
+    // Split long names into multiple lines for better visual presentation
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    for (const word of words) {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+
+        if (testLine.length <= maxCharsPerLine) {
+            currentLine = testLine;
+        } else {
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+            currentLine = word;
+        }
+    }
+
+    if (currentLine) {
+        lines.push(currentLine);
+    }
+
+    return lines;
+}
+
 // =============================================================================
 // ROUTES
 // =============================================================================
@@ -96,34 +122,42 @@ app.post('/imprimir', (req, res) => {
         commands += ESC + '@'; // Initialize printer
         commands += ESC + 'a' + '\x01'; // Center align
 
-        commands += LF; // Top margin
+        // Reduced top margin (removed extra line feed)
 
-        // 1. Student name (double height)
-        commands += GS + '!' + '\x10';
+        // 1. Student name (Syncopate Bold style - larger and bolder)
+        const nombreLimpio = cleanText(contenido.nombre.toUpperCase());
+        const nombreLineas = wrapText(nombreLimpio, 22); // Wrap at 22 chars for better readability
+
+        // Print each line of the name with large bold font
+        commands += GS + '!' + '\x11'; // Double width and height (large font)
         commands += ESC + 'E' + '\x01'; // Bold ON
-        commands += cleanText(contenido.nombre) + LF;
+
+        for (let i = 0; i < nombreLineas.length; i++) {
+            commands += nombreLineas[i] + LF;
+        }
+
         commands += ESC + 'E' + '\x00'; // Bold OFF
         commands += GS + '!' + '\x00'; // Reset size
 
-        commands += LF;
+        commands += LF; // Single space after name
 
-        // 2. Date and time
+        // 2. Date and time (normal size)
         commands += fechaStr + LF;
 
         // 3. Service type
         commands += '(' + contenido.tipo_alimentacion + ')' + LF;
 
-        commands += LF;
+        commands += LF; // Single space before keyword
 
-        // 4. Daily keyword (large)
+        // 4. Daily keyword (Syncopate Bold style - large)
         commands += GS + '!' + '\x11'; // Double width and height
         commands += ESC + 'E' + '\x01'; // Bold ON
         commands += palabra + LF;
         commands += ESC + 'E' + '\x00'; // Bold OFF
         commands += GS + '!' + '\x00'; // Reset size
 
-        // 5. Cut paper
-        commands += LF + LF + LF + LF;
+        // 5. Cut paper (reduced bottom margin)
+        commands += LF + LF; // Reduced from 4 LF to 2 LF
         commands += GS + 'V' + '\x41' + '\x00';
 
         // Save to temporary file
