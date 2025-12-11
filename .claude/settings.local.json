@@ -3,7 +3,8 @@
     "allow": [
       "Bash(node:*)",
       "Bash(python3 -m pip:*)",
-      "Bash(.venv/Scripts/python.exe:*)"
+      "Bash(.venv/Scripts/python.exe:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []
