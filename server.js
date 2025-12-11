@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
+const sharp = require('sharp');
 
 const app = express();
 const port = 3000;
@@ -86,7 +87,7 @@ app.post('/imprimir', (req, res) => {
     res.json({ success: true, message: "Printing..." });
 
     // Process printing in background (setImmediate for zero delay)
-    setImmediate(() => {
+    setImmediate(async () => {
         try {
             const { contenido } = req.body;
             const now = new Date();
@@ -124,7 +125,38 @@ app.post('/imprimir', (req, res) => {
             commands += ESC + '@'; // Initialize printer
             commands += ESC + 'a' + '\x01'; // Center align
 
-            // Reduced top margin (removed extra line feed)
+            // 0. Logo image (top of ticket)
+            try {
+                const logoPath = path.join(__dirname, 'frontend', 'src', 'Images', 'Logo FLI.png');
+                const logoBuffer = await sharp(logoPath)
+                    .resize(384, null, { fit: 'inside' }) // 384 pixels width for thermal printer
+                    .grayscale()
+                    .normalise()
+                    .raw()
+                    .toBuffer({ resolveWithObject: true });
+
+                // Convert to ESC/POS raster image
+                const { data, info } = logoBuffer;
+                const width = info.width;
+                const height = info.height;
+
+                // ESC * raster image command
+                commands += GS + 'v0' + '\x00'; // Normal mode
+                const xL = width % 256;
+                const xH = Math.floor(width / 256);
+                const yL = height % 256;
+                const yH = Math.floor(height / 256);
+                commands += String.fromCharCode(xL, xH, yL, yH);
+
+                // Convert grayscale to monochrome
+                for (let i = 0; i < data.length; i++) {
+                    commands += String.fromCharCode(data[i] < 128 ? 0 : 1);
+                }
+
+                commands += LF;
+            } catch (err) {
+                console.error('Logo error:', err);
+            }
 
             // 1. Student name (Syncopate Bold style - larger and bolder)
             const nombreLimpio = cleanText(contenido.nombre.toUpperCase());
