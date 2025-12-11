@@ -3,8 +3,8 @@ import Swal from "sweetalert2";
 import ParticleBackground from "./CustomParticleBackground.jsx";
 import "./app.css";
 
-import JaggyImage from "./assets/sin fondo 1.png";
-import DefaultUserImage from "./assets/person_13924070.png";
+import JaggyImage from "./Images/sin fondo 1.png";
+import DefaultUserImage from "./Images/person_13924070.png";
 
 function App() {
   const [codigo, setCodigo] = useState("");
