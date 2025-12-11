@@ -58,17 +58,16 @@ app.post('/imprimir', (req, res) => {
     // Send immediate response
     res.json({ success: true, message: "Printing..." });
 
-    // Process printing in background
-    setTimeout(() => {
-        try {
-            const { contenido } = req.body;
-            const now = new Date();
+    // Process printing synchronously (no setTimeout delay)
+    try {
+        const { contenido } = req.body;
+        const now = new Date();
 
-            // Format date and time
-            const fechaStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+        // Format date and time
+        const fechaStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 
-            // Daily keyword for validation
-            const palabras = [
+        // Daily keyword for validation
+        const palabras = [
             "FLI", "LEARN TO LEARN", "INDEPENDENT", "SOCIAL LEADER", "CITIZENSHIP",
             "CARING", "KIND", "TEAM PLAYER", "COOKING", "FAIR",
             "PERSONAL BEST", "LEARN TO BE", "INNOVATIVE", "ARTSSO", "SENIORS",
@@ -86,72 +85,71 @@ app.post('/imprimir', (req, res) => {
             "AWARENESS", "NJHS", "COGNIA", "BILINGUAL", "UNDERSTANDING",
             "AUTONOMOUS", "CIVIC", "GO JAGUARS"
         ];
-            const palabra = palabras[getDayOfYear(now) % palabras.length].toUpperCase();
+        const palabra = palabras[getDayOfYear(now) % palabras.length].toUpperCase();
 
-            // ESC/POS commands
-            const ESC = '\x1B';
-            const GS = '\x1D';
-            const LF = '\n';
+        // ESC/POS commands
+        const ESC = '\x1B';
+        const GS = '\x1D';
+        const LF = '\n';
 
-            let commands = '';
-            commands += ESC + '@'; // Initialize printer
-            commands += ESC + 'a' + '\x01'; // Center align
+        let commands = '';
+        commands += ESC + '@'; // Initialize printer
+        commands += ESC + 'a' + '\x01'; // Center align
 
-            commands += LF; // Top margin
+        commands += LF; // Top margin
 
-            // 1. Student name (double height)
-            commands += GS + '!' + '\x10';
-            commands += ESC + 'E' + '\x01'; // Bold ON
-            commands += cleanText(contenido.nombre) + LF;
-            commands += ESC + 'E' + '\x00'; // Bold OFF
-            commands += GS + '!' + '\x00'; // Reset size
+        // 1. Student name (double height)
+        commands += GS + '!' + '\x10';
+        commands += ESC + 'E' + '\x01'; // Bold ON
+        commands += cleanText(contenido.nombre) + LF;
+        commands += ESC + 'E' + '\x00'; // Bold OFF
+        commands += GS + '!' + '\x00'; // Reset size
 
-            commands += LF;
+        commands += LF;
 
-            // 2. Date and time
-            commands += fechaStr + LF;
+        // 2. Date and time
+        commands += fechaStr + LF;
 
-            // 3. Service type
-            commands += '(' + contenido.tipo_alimentacion + ')' + LF;
+        // 3. Service type
+        commands += '(' + contenido.tipo_alimentacion + ')' + LF;
 
-            commands += LF;
+        commands += LF;
 
-            // 4. Daily keyword (large)
-            commands += GS + '!' + '\x11'; // Double width and height
-            commands += ESC + 'E' + '\x01'; // Bold ON
-            commands += palabra + LF;
-            commands += ESC + 'E' + '\x00'; // Bold OFF
-            commands += GS + '!' + '\x00'; // Reset size
+        // 4. Daily keyword (large)
+        commands += GS + '!' + '\x11'; // Double width and height
+        commands += ESC + 'E' + '\x01'; // Bold ON
+        commands += palabra + LF;
+        commands += ESC + 'E' + '\x00'; // Bold OFF
+        commands += GS + '!' + '\x00'; // Reset size
 
-            // 5. Cut paper
-            commands += LF + LF + LF + LF;
-            commands += GS + 'V' + '\x41' + '\x00';
+        // 5. Cut paper
+        commands += LF + LF + LF + LF;
+        commands += GS + 'V' + '\x41' + '\x00';
 
-            // Save to temporary file
-            const tempFile = path.join(__dirname, 'raw_ticket.bin');
-            fs.writeFileSync(tempFile, commands, { encoding: 'binary' });
+        // Save to temporary file
+        const tempFile = path.join(__dirname, 'raw_ticket.bin');
+        fs.writeFileSync(tempFile, commands, { encoding: 'binary' });
 
-            // Send to printer
-            if (!testMode) {
-                const printerPath = `\\\\${COMPUTER_NAME}\\${PRINTER_SHARE_NAME}`;
-                const cmd = `copy /b "${tempFile}" "${printerPath}"`;
+        // Send to printer
+        if (!testMode) {
+            const printerPath = `\\\\${COMPUTER_NAME}\\${PRINTER_SHARE_NAME}`;
+            const cmd = `copy /b "${tempFile}" "${printerPath}"`;
 
-                exec(cmd, (error) => {
-                    if (error) {
-                        console.error("❌ Printer error:", error.message);
-                    } else {
-                        console.log(`✅ Ticket printed: ${contenido.nombre} - ${contenido.tipo_alimentacion}`);
-                    }
-                });
-            } else {
-                console.log(`🧪 TEST MODE - Ticket would print: ${contenido.nombre} - ${contenido.tipo_alimentacion}`);
-                console.log(`   Keyword: ${palabra}`);
-            }
-
-        } catch (e) {
-            console.error("❌ Background error:", e);
+            exec(cmd, (error) => {
+                if (error) {
+                    console.error("❌ Printer error:", error.message);
+                } else {
+                    console.log(`✅ Ticket printed: ${contenido.nombre} - ${contenido.tipo_alimentacion}`);
+                }
+            });
+        } else {
+            console.log(`🧪 TEST MODE - Ticket would print: ${contenido.nombre} - ${contenido.tipo_alimentacion}`);
+            console.log(`   Keyword: ${palabra}`);
         }
-    }, 0);
+
+    } catch (e) {
+        console.error("❌ Print error:", e);
+    }
 });
 
 // =============================================================================
