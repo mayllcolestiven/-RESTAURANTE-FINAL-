@@ -106,13 +106,13 @@ CREATE TABLE registros_validacion (
 cd backend
 
 # Create virtual environment
-python -m venv venv
+python -m venv .venv
 
 # Activate virtual environment
 # On Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 # On macOS/Linux:
-source venv/bin/activate
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -170,8 +170,8 @@ Ensure MySQL server is running on port 3306.
 
 ```bash
 cd backend
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # macOS/Linux
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # macOS/Linux
 python server.py
 ```
 
