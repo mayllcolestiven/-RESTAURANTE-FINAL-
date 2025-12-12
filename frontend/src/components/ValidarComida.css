@@ -1,0 +1,47 @@
+.validador-comida {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #4caf50;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #388e3c;
+}
+
+.mensaje {
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+}
+
+.mensaje.verde {
+  background: #4caf50;
+}
+
+.mensaje.naranja {
+  background: #ff9800;
+}
+
+.mensaje.rojo {
+  background: #f44336;
+}

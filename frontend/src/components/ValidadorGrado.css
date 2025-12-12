@@ -1,0 +1,63 @@
+.validador-grado-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: rgba(255,255,255,0.85);
+  border-radius: 10px;
+  width: 300px;
+}
+
+.validador-grado-container input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.validador-grado-container button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  background-color: #2196f3;
+  color: white;
+  font-weight: bold;
+}
+
+.aviso {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  animation: aparecer 0.4s ease-in-out;
+}
+
+.aviso.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #155724;
+}
+
+.aviso.warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #856404;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.resultado {
+  margin-top: 10px;
+  text-align: center;
+}

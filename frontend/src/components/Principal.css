@@ -1,0 +1,208 @@
+.principal-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  background: #1e1e1e;
+  color: white;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
+
+.mascota {
+  width: 150px;
+  height: auto;
+}
+
+.mascota.left {
+  margin-left: 40px;
+}
+
+.mascota.right {
+  margin-right: 40px;
+}
+
+.card {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  width: 350px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.card h2 {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.card input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.circle {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.circle img {
+  width: 80px;
+  height: 80px;
+}
+
+
+
+
+
+/* Estilos adicionales para mensajes y validación */
+.loading {
+  color: #ffa500;
+  font-weight: bold;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.mensaje {
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.mensaje.exito {
+  background-color: #28a745;
+  color: white;
+}
+
+.mensaje.error {
+  background-color: #dc3545;
+  color: white;
+}
+
+.info-estudiante {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.info-estudiante p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.info-estudiante strong {
+  color: #4CAF50;
+}
+
+
+
+
+
+
+
+/* Estado de impresión */
+.impresion-status {
+  margin: 15px 0;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.exito-impresion {
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #c3e6cb;
+}
+
+.error-impresion {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffeaa7;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mejorar el mensaje de éxito */
+.mensaje.exito {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 2px solid #c3e6cb;
+  margin: 10px 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.mensaje.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 2px solid #f5c6cb;
+  margin: 10px 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Mejorar info estudiante */
+.info-estudiante {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+  border-left: 4px solid #667eea;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.info-estudiante p {
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.info-estudiante strong {
+  color: #667eea;
+}
+
+/* Loading mejorado */
+.loading {
+  color: #667eea;
+  font-weight: bold;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
