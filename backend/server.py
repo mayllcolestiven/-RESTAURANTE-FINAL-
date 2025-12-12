@@ -382,6 +382,14 @@ def current_service():
 # =============================================================================
 if __name__ == "__main__":
     app.config["JSON_AS_ASCII"] = False
+
+    # Set UTF-8 encoding for Windows console
+    import sys
+    import io
+    if sys.platform == "win32":
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
+
     print("\n" + "="*60)
     print("🚀 CAFETERIA BACKEND SERVER")
     print("="*60)
